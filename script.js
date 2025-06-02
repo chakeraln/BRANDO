@@ -23,19 +23,23 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (progress >= 100) {
             clearInterval(loadingInterval);
+            // Hide loading screen with transition
+            loadingScreen.style.opacity = '0';
+            loadingScreen.style.visibility = 'hidden';
+            document.body.classList.add('loaded');
+            
+            // Remove loading screen from DOM after transition
             setTimeout(() => {
-                loadingScreen.style.opacity = '0';
-                loadingScreen.style.visibility = 'hidden';
-                document.body.classList.add('loaded');
-                
-                // Animate main content after loading
-                document.querySelectorAll('.hero-content > *').forEach((el, index) => {
-                    setTimeout(() => {
-                        el.style.opacity = '1';
-                        el.style.transform = 'translateY(0)';
-                    }, index * 200);
-                });
+                loadingScreen.style.display = 'none';
             }, 500);
+            
+            // Animate main content after loading
+            document.querySelectorAll('.hero-content > *').forEach((el, index) => {
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
         }
     }, 50);
 
@@ -115,23 +119,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Theme Toggle
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = themeToggle.querySelector('.theme-icon');
+    // Theme Toggle - Removed and set dark mode as default
+    document.documentElement.setAttribute('data-theme', 'dark');
     
-    // Load saved theme
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-
-    themeToggle.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-    });
+    // Remove theme toggle button
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        themeToggle.style.display = 'none';
+    }
 
     // Intersection Observer for animations
     const observerOptions = {
