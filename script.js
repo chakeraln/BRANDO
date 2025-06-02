@@ -24,20 +24,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (progress >= 100) {
             clearInterval(loadingInterval);
             setTimeout(() => {
-                loadingScreen.classList.add('fade-out');
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                    document.body.classList.add('loaded');
-                    
-                    // Animate main content after loading
-                    document.querySelectorAll('.hero-content > *').forEach((el, index) => {
-                        setTimeout(() => {
-                            el.style.opacity = '1';
-                            el.style.transform = 'translateY(0)';
-                        }, index * 200);
-                    });
-                }, 500);
-            }, 300);
+                loadingScreen.style.opacity = '0';
+                loadingScreen.style.visibility = 'hidden';
+                document.body.classList.add('loaded');
+                
+                // Animate main content after loading
+                document.querySelectorAll('.hero-content > *').forEach((el, index) => {
+                    setTimeout(() => {
+                        el.style.opacity = '1';
+                        el.style.transform = 'translateY(0)';
+                    }, index * 200);
+                });
+            }, 500);
         }
     }, 50);
 
