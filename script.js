@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Initialize EmailJS with your public key
-    emailjs.init("public_key_here");
+    emailjs.init("YOUR_PUBLIC_KEY"); // Replace with your actual EmailJS public key
 
     // Contact Form Handling
     const contactForm = document.querySelector('.contact-form');
@@ -295,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
         submitButton.disabled = true;
         
         // Send email using EmailJS
-        emailjs.send("service_id_here", "template_id_here", {
+        emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
             to_email: "dzbrando9@gmail.com",
             from_name: name,
             from_email: email,
@@ -309,8 +309,8 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(function(error) {
             // Show error message
+            console.error('EmailJS Error:', error);
             alert('عذراً، حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.');
-            console.error('Error:', error);
         })
         .finally(function() {
             // Reset button state
