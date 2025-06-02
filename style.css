@@ -107,9 +107,8 @@ body {
     transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 
-.loading-screen.hidden {
-    opacity: 0;
-    visibility: hidden;
+.loading-screen[style*="visibility: hidden"] {
+    display: none;
 }
 
 .loading-content {
