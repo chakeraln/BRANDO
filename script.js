@@ -6,14 +6,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Loading Screen
     const loadingScreen = document.getElementById('loadingScreen');
     const loadingProgress = document.querySelector('.loading-progress');
+    const loadingLogo = document.querySelector('.loading-logo .logo-text');
     
-    // Simulate loading progress
+    // Simulate loading progress with smoother animation
     let progress = 0;
     const loadingInterval = setInterval(() => {
-        progress += Math.random() * 15;
+        progress += Math.random() * 10;
         if (progress > 100) progress = 100;
         
         loadingProgress.style.width = progress + '%';
+        
+        // Add pulse effect to logo during loading
+        if (progress < 100) {
+            loadingLogo.style.transform = `scale(${1 + Math.sin(progress * 0.1) * 0.05})`;
+        }
         
         if (progress >= 100) {
             clearInterval(loadingInterval);
@@ -22,10 +28,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => {
                     loadingScreen.style.display = 'none';
                     document.body.classList.add('loaded');
+                    
+                    // Animate main content after loading
+                    document.querySelectorAll('.hero-content > *').forEach((el, index) => {
+                        setTimeout(() => {
+                            el.style.opacity = '1';
+                            el.style.transform = 'translateY(0)';
+                        }, index * 200);
+                    });
                 }, 500);
             }, 300);
         }
-    }, 100);
+    }, 50);
+
+    // Add initial styles for hero content
+    document.querySelectorAll('.hero-content > *').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'all 0.8s ease';
+    });
 
     // Navigation
     const navbar = document.getElementById('navbar');
@@ -100,10 +121,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = themeToggle.querySelector('.theme-icon');
     
-    // Check for saved theme preference
-    const savedTheme = localStorage.getItem('theme') || 
-                     (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
     themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
 
@@ -116,24 +135,6 @@ document.addEventListener('DOMContentLoaded', function() {
         themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
     });
 
-    // Hero Stats Counter
-    const statNumbers = document.querySelectorAll('.stat-number');
-    
-    function animateCounter(element) {
-        const target = parseInt(element.getAttribute('data-count'));
-        const increment = target / 50;
-        let current = 0;
-        
-        const counter = setInterval(() => {
-            current += increment;
-            if (current >= target) {
-                current = target;
-                clearInterval(counter);
-            }
-            element.textContent = Math.floor(current);
-        }, 40);
-    }
-
     // Intersection Observer for animations
     const observerOptions = {
         threshold: 0.3,
@@ -144,62 +145,13 @@ document.addEventListener('DOMContentLoaded', function() {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('animate-in');
-                
-                // Animate counters when hero stats come into view
-                if (entry.target.classList.contains('hero-stats')) {
-                    statNumbers.forEach(stat => animateCounter(stat));
-                }
             }
         });
     }, observerOptions);
 
     // Observe elements for animation
-    const animateElements = document.querySelectorAll('.hero-content, .hero-visual, .about-card, .service-card, .portfolio-item, .testimonial-card, .contact-card, .hero-stats');
+    const animateElements = document.querySelectorAll('.hero-content, .hero-visual, .about-card, .service-card, .contact-card');
     animateElements.forEach(el => observer.observe(el));
-
-    // Portfolio Filter
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    const portfolioItems = document.querySelectorAll('.portfolio-item');
-
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            // Remove active class from all buttons
-            filterBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            const filterValue = btn.getAttribute('data-filter');
-
-            portfolioItems.forEach(item => {
-                if (filterValue === 'all' || item.getAttribute('data-category') === filterValue) {
-                    item.style.display = 'block';
-                    setTimeout(() => {
-                        item.style.opacity = '1';
-                        item.style.transform = 'scale(1)';
-                    }, 100);
-                } else {
-                    item.style.opacity = '0';
-                    item.style.transform = 'scale(0.8)';
-                    setTimeout(() => {
-                        item.style.display = 'none';
-                    }, 300);
-                }
-            });
-        });
-    });
-
-    // Portfolio Project Modal (Simple alert for demo)
-    const viewProjectBtns = document.querySelectorAll('.view-project');
-    
-    viewProjectBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const projectId = btn.getAttribute('data-project');
-            const projectTitle = btn.parentElement.querySelector('h3').textContent;
-            
-            // In a real implementation, you would open a modal with project details
-            alert(`عرض تفاصيل المشروع: ${projectTitle}\n\nهنا ستظهر تفاصيل المشروع وصور إضافية.`);
-        });
-    });
 
     // Service Cards Hover Effect
     const serviceCards = document.querySelectorAll('.service-card');
@@ -212,76 +164,6 @@ document.addEventListener('DOMContentLoaded', function() {
         card.addEventListener('mouseleave', () => {
             card.style.transform = 'translateY(0)';
         });
-    });
-
-    // Testimonials Slider
-    const testimonialsSlider = document.getElementById('testimonialsSlider');
-    const testimonialCards = document.querySelectorAll('.testimonial-card');
-    const prevBtn = document.getElementById('prevTestimonial');
-    const nextBtn = document.getElementById('nextTestimonial');
-    const dotsContainer = document.getElementById('testimonialsDots');
-
-    let currentTestimonial = 0;
-
-    // Create dots
-    testimonialCards.forEach((_, index) => {
-        const dot = document.createElement('button');
-        dot.classList.add('dot');
-        if (index === 0) dot.classList.add('active');
-        dot.addEventListener('click', () => goToTestimonial(index));
-        dotsContainer.appendChild(dot);
-    });
-
-    const dots = document.querySelectorAll('.dot');
-
-    function goToTestimonial(index) {
-        currentTestimonial = index;
-        const translateX = -index * 100;
-        testimonialsSlider.style.transform = `translateX(${translateX}%)`;
-        
-        dots.forEach((dot, i) => {
-            dot.classList.toggle('active', i === index);
-        });
-    }
-
-    function nextTestimonial() {
-        currentTestimonial = (currentTestimonial + 1) % testimonialCards.length;
-        goToTestimonial(currentTestimonial);
-    }
-
-    function prevTestimonial() {
-        currentTestimonial = (currentTestimonial - 1 + testimonialCards.length) % testimonialCards.length;
-        goToTestimonial(currentTestimonial);
-    }
-
-    nextBtn.addEventListener('click', nextTestimonial);
-    prevBtn.addEventListener('click', prevTestimonial);
-
-    // Auto-play testimonials
-    setInterval(nextTestimonial, 5000);
-
-    // Contact Form
-    const contactForm = document.querySelector('.contact-form');
-    
-    contactForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const formData = new FormData(contactForm);
-        const name = formData.get('name');
-        const email = formData.get('email');
-        const message = formData.get('message');
-        
-        // Simple validation
-        if (!name || !email || !message) {
-            alert('يرجى ملء جميع الحقول المطلوبة');
-            return;
-        }
-        
-        // In a real implementation, you would send this data to your server
-        alert(`شكراً لك ${name}!\n\nتم إرسال رسالتك بنجاح. سنتواصل معك قريباً على ${email}`);
-        
-        // Reset form
-        contactForm.reset();
     });
 
     // Floating Elements Animation in Hero
@@ -392,5 +274,154 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Initialize EmailJS with your public key
+    emailjs.init("public_key_here");
+
+    // Contact Form Handling
+    const contactForm = document.querySelector('.contact-form');
+    
+    contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get form data
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const message = document.getElementById('message').value;
+        
+        // Show loading state
+        const submitButton = contactForm.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.textContent;
+        submitButton.textContent = 'جاري الإرسال...';
+        submitButton.disabled = true;
+        
+        // Send email using EmailJS
+        emailjs.send("service_id_here", "template_id_here", {
+            to_email: "dzbrando9@gmail.com",
+            from_name: name,
+            from_email: email,
+            message: message,
+            reply_to: email
+        })
+        .then(function() {
+            // Show success message
+            alert('تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.');
+            contactForm.reset();
+        })
+        .catch(function(error) {
+            // Show error message
+            alert('عذراً، حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.');
+            console.error('Error:', error);
+        })
+        .finally(function() {
+            // Reset button state
+            submitButton.textContent = originalButtonText;
+            submitButton.disabled = false;
+        });
+    });
+
     console.log('🎨 BRANDO Agency - Website Loaded Successfully!');
+
+    // Add creative brand animations
+    initBrandoAnimations();
 });
+
+// Add creative brand animations
+function initBrandoAnimations() {
+    // Logo hover effect
+    const logo = document.querySelector('.nav-brand .logo');
+    if (logo) {
+        logo.addEventListener('mouseenter', () => {
+            logo.style.transform = 'scale(1.05)';
+            logo.style.transition = 'transform 0.3s ease';
+        });
+        
+        logo.addEventListener('mouseleave', () => {
+            logo.style.transform = 'scale(1)';
+        });
+    }
+
+    // Add floating BRANDO text in background
+    const heroSection = document.querySelector('.hero');
+    if (heroSection) {
+        for (let i = 0; i < 3; i++) {
+            const brandoText = document.createElement('div');
+            brandoText.className = 'floating-brando';
+            brandoText.textContent = 'BRANDO';
+            brandoText.style.cssText = `
+                position: absolute;
+                font-size: ${120 + i * 20}px;
+                font-weight: 900;
+                opacity: 0.02;
+                color: var(--primary-color);
+                transform: rotate(${i * 30}deg);
+                animation: floatBrando ${15 + i * 5}s ease-in-out infinite;
+                pointer-events: none;
+                z-index: 0;
+            `;
+            heroSection.appendChild(brandoText);
+        }
+    }
+
+    // Add particle effect to hero section
+    const particlesContainer = document.createElement('div');
+    particlesContainer.className = 'particles-container';
+    particlesContainer.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 0;
+    `;
+    
+    if (heroSection) {
+        heroSection.appendChild(particlesContainer);
+        
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.cssText = `
+                position: absolute;
+                width: ${Math.random() * 5 + 2}px;
+                height: ${Math.random() * 5 + 2}px;
+                background: var(--primary-color);
+                border-radius: 50%;
+                opacity: ${Math.random() * 0.5};
+                top: ${Math.random() * 100}%;
+                left: ${Math.random() * 100}%;
+                animation: floatParticle ${Math.random() * 10 + 5}s ease-in-out infinite;
+            `;
+            particlesContainer.appendChild(particle);
+        }
+    }
+}
+
+// Add CSS animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes floatBrando {
+        0%, 100% {
+            transform: translate(0, 0) rotate(0deg);
+        }
+        25% {
+            transform: translate(20px, -20px) rotate(5deg);
+        }
+        50% {
+            transform: translate(-20px, 20px) rotate(-5deg);
+        }
+        75% {
+            transform: translate(-20px, -20px) rotate(5deg);
+        }
+    }
+
+    @keyframes floatParticle {
+        0%, 100% {
+            transform: translate(0, 0);
+        }
+        50% {
+            transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px);
+        }
+    }
+`;
+document.head.appendChild(style);
