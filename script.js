@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Initialize EmailJS with your public key
-    emailjs.init("YOUR_PUBLIC_KEY"); // Replace with your actual EmailJS public key
+    emailjs.init("WzrrCSKJdOCGVmR4p");
 
     // Contact Form Handling
     const contactForm = document.querySelector('.contact-form');
@@ -295,22 +295,33 @@ document.addEventListener('DOMContentLoaded', function() {
         submitButton.disabled = true;
         
         // Send email using EmailJS
-        emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
+        emailjs.send("service_rckq79q", "template_qm94s4s", {
             to_email: "dzbrando9@gmail.com",
             from_name: name,
             from_email: email,
             message: message,
-            reply_to: email
+            reply_to: email,
+            to_name: "BRANDO Agency"
         })
-        .then(function() {
+        .then(function(response) {
+            console.log('SUCCESS!', response.status, response.text);
             // Show success message
             alert('تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.');
             contactForm.reset();
         })
         .catch(function(error) {
-            // Show error message
+            // Show detailed error message
             console.error('EmailJS Error:', error);
-            alert('عذراً، حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.');
+            let errorMessage = 'عذراً، حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.';
+            
+            // Check for specific error types
+            if (error.text === 'Invalid template ID') {
+                errorMessage = 'خطأ في تكوين البريد الإلكتروني. يرجى التواصل مع الدعم الفني.';
+            } else if (error.text === 'Invalid service ID') {
+                errorMessage = 'خطأ في تكوين خدمة البريد الإلكتروني. يرجى التواصل مع الدعم الفني.';
+            }
+            
+            alert(errorMessage);
         })
         .finally(function() {
             // Reset button state
